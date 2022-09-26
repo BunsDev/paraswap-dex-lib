@@ -20,7 +20,7 @@ const readdirAsync = promisify(fs.readdir);
 const mkdirAsync = promisify(fs.mkdir);
 
 interface IOptions {
-  name: string;
+  name?: string;
 }
 
 async function createFolder(newDexPath: string) {
@@ -78,8 +78,9 @@ async function generateDexesFromTemplate(
   }
 }
 
-function checkArgvName(argv: IOptions) {
+function checkArgvName(argv: IOptions): string {
   const { name: dexNameParam } = argv;
+
   if (dexNameParam === undefined) {
     throw new Error('You must specify dex name as the first argument');
   }
@@ -128,14 +129,14 @@ yargs
   .command(
     'init [name]',
     'Integrate new dex by the "name" from templates',
-    yargsLocal => {
-      yargsLocal.positional('name', {
+    function (yargsLocal) {
+      return yargsLocal.positional('name', {
         type: 'string',
         describe:
           'Name of the new dex. Must be in param cases using only "a-z", "0-9", and "-" without spaces',
       });
     },
-    function (argv: { name: string }) {
+    function (argv) {
       initIntegration(argv).catch(error => {
         console.error(`${error}`);
       });
@@ -144,8 +145,8 @@ yargs
   .command(
     'test [name]',
     'Execute all tests for particular dex accessing by it\'s "name"',
-    yargsLocal => {
-      yargsLocal.positional('name', {
+    function (yargsLocal) {
+      return yargsLocal.positional('name', {
         type: 'string',
         describe: 'Name of the dex to test',
       });
